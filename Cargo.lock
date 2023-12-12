@@ -939,6 +939,9 @@ dependencies = [
 name = "todo"
 version = "0.1.0"
 dependencies = [
+ "gloo 0.10.0",
+ "serde",
+ "serde_json",
  "web-sys",
  "yew",
 ]

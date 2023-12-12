@@ -7,6 +7,9 @@ edition = "2021"
 
 [dependencies]
 yew = { git = "https://github.com/yewstack/yew/", features = ["csr"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+gloo = "0.10"
 
 [dependencies.web-sys]
 version = "0.3"

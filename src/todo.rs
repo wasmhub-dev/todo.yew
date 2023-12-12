@@ -1,7 +1,9 @@
+use gloo::storage::{LocalStorage, Storage};
 use web_sys::{HtmlInputElement, window};
 use yew::prelude::*;
 
 use crate::{state::State, log};
+
 
 pub enum Msg {
     Add,
@@ -14,14 +16,28 @@ pub struct TodoApp {
     state: State,
 }
 
+impl TodoApp {
+    fn save(&self) {
+        let state = serde_json::to_string(&self.state).unwrap();
+        let _ = LocalStorage::set("todo", state);
+    }
+
+    fn load() -> State {
+        let saved_json: String = LocalStorage::get("todo").unwrap_or_default();
+        let state = serde_json::from_str(&saved_json).unwrap_or_else(|_| State::new());
+        state
+    }
+}
+
 impl Component for TodoApp {
     type Message = Msg;
     type Properties = ();
 
     fn create(_ctx: &Context<Self>) -> Self {
+        let state = Self::load();
         Self {
             input_box: NodeRef::default(),
-            state: State::new(),
+            state: state,
         }
     }
 
@@ -37,17 +53,20 @@ impl Component for TodoApp {
                     log!("Add task \"{}\"", task_name);
                     self.state.add(task_name);
                     input_box_element.set_value("");
+                    self.save();
                     true
                 }
             }
             Msg::Complete(index) => {
                 log!("Toggle task {}", index);
                 self.state.toggle(index);
+                self.save();
                 true
             }
             Msg::Remove(index) => {
                 log!("Remove task {}", index);
                 self.state.remove(index);
+                self.save();
                 true
             }
         }
