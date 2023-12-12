@@ -1,6 +1,6 @@
 mod todo;
-mod item;
 mod utils;
+mod state;
 use yew::prelude::*;
 use todo::TodoApp;
 

@@ -1,13 +1,17 @@
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
+use crate::state::State;
+
 pub enum Msg {
-    AddTask
+    Add,
+    Complete(usize),
+    Remove(usize),
 }
 
 pub struct TodoApp {
     input_box: NodeRef,
-    tasks: Vec<(bool, String)>,
+    state: State,
 }
 
 impl Component for TodoApp {
@@ -17,25 +21,31 @@ impl Component for TodoApp {
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
             input_box: NodeRef::default(),
-            tasks: vec![],
+            state: State::new(),
         }
     }
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Msg::AddTask => {
-                let task_name = self.input_box.cast::<HtmlInputElement>().unwrap().value();
-                self.tasks.push((false, task_name));
+            Msg::Add => {
+                let input_box_element = self.input_box.cast::<HtmlInputElement>().unwrap();
+                let task_name = input_box_element.value();
+                self.state.add(task_name);
+                input_box_element.set_value("");
+                true
+            }
+            Msg::Complete(index) => {
+                self.state.toggle(index);
+                true
+            }
+            Msg::Remove(index) => {
+                self.state.remove(index);
                 true
             }
         }
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let add_task_button_onclick = ctx.link().callback(|_| {
-            Msg::AddTask
-        });
-
         html! {
             <div class="todo-app">
                 <div class="app-title">
@@ -44,23 +54,21 @@ impl Component for TodoApp {
                 </div>
                 <div class="row">
                     <input ref={self.input_box.clone()} type="text" placeholder="add your tasks" />
-                    <button onclick={ add_task_button_onclick }>{ "Add" }</button>
+                    <button onclick={ ctx.link().callback(|_| Msg::Add )}>{ "Add" }</button>
                 </div>
                 <ul>
                 {
-                    &self.tasks.clone().into_iter().map(|task| {
-                        let completed = task.0;
-                        let task_name = task.1;
-                        let classes = if completed {
+                    &self.state.tasks.iter().enumerate().map(|(index, task)| {
+                        let classes = if task.completed {
                             classes!("checked")
                         } else {
                             classes!("")
                         };
 
                         html!{
-                            <li class={classes}>
-                                { format!("{}", task_name) }
-                                <span>{ Html::from_html_unchecked(AttrValue::from("&times;")) }</span>
+                            <li class={classes} onclick={ ctx.link().callback(move |_| Msg::Complete(index))}>
+                                { format!("{}", task.name) }
+                                <span onclick={ ctx.link().callback(move |event: MouseEvent| {event.stop_propagation(); Msg::Remove(index)})}>{ Html::from_html_unchecked(AttrValue::from("&times;")) }</span>
                             </li>
                         }
                     }).collect::<Html>()
