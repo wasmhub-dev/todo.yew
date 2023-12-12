@@ -50,7 +50,6 @@ impl Component for TodoApp {
             <div class="todo-app">
                 <div class="app-title">
                     <h2>{"Todo app"}</h2>
-                    <i class="fa-solid fa-book-bookmark"></i>
                 </div>
                 <div class="row">
                     <input ref={self.input_box.clone()} type="text" placeholder="add your tasks" />
@@ -58,7 +57,7 @@ impl Component for TodoApp {
                 </div>
                 <ul>
                 {
-                    &self.state.tasks.iter().enumerate().map(|(index, task)| {
+                    self.state.tasks.iter().enumerate().map(|(index, task)| {
                         let classes = if task.completed {
                             classes!("checked")
                         } else {
@@ -68,7 +67,9 @@ impl Component for TodoApp {
                         html!{
                             <li class={classes} onclick={ ctx.link().callback(move |_| Msg::Complete(index))}>
                                 { format!("{}", task.name) }
-                                <span onclick={ ctx.link().callback(move |event: MouseEvent| {event.stop_propagation(); Msg::Remove(index)})}>{ Html::from_html_unchecked(AttrValue::from("&times;")) }</span>
+                                <span onclick={ ctx.link().callback(move |event: MouseEvent| {event.stop_propagation(); Msg::Remove(index)})}>
+                                    { Html::from_html_unchecked(AttrValue::from("&times;")) }
+                                </span>
                             </li>
                         }
                     }).collect::<Html>()
