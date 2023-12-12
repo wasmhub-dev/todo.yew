@@ -1,9 +1,9 @@
+use gloo::dialogs::alert;
 use gloo::storage::{LocalStorage, Storage};
-use web_sys::{HtmlInputElement, window};
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
-use crate::{state::State, log};
-
+use crate::{log, state::State};
 
 pub enum Msg {
     Add,
@@ -47,7 +47,7 @@ impl Component for TodoApp {
                 let input_box_element = self.input_box.cast::<HtmlInputElement>().unwrap();
                 let task_name = input_box_element.value();
                 if task_name.is_empty() {
-                    let _ = window().unwrap().alert_with_message("Please enter a task");
+                    let _ = alert("Please enter a task");
                     return false;
                 } else {
                     log!("Add task \"{}\"", task_name);
