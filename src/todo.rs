@@ -1,7 +1,7 @@
-use web_sys::HtmlInputElement;
+use web_sys::{HtmlInputElement, window};
 use yew::prelude::*;
 
-use crate::state::State;
+use crate::{state::State, log};
 
 pub enum Msg {
     Add,
@@ -30,15 +30,23 @@ impl Component for TodoApp {
             Msg::Add => {
                 let input_box_element = self.input_box.cast::<HtmlInputElement>().unwrap();
                 let task_name = input_box_element.value();
-                self.state.add(task_name);
-                input_box_element.set_value("");
-                true
+                if task_name.is_empty() {
+                    let _ = window().unwrap().alert_with_message("Please enter a task");
+                    return false;
+                } else {
+                    log!("Add task \"{}\"", task_name);
+                    self.state.add(task_name);
+                    input_box_element.set_value("");
+                    true
+                }
             }
             Msg::Complete(index) => {
+                log!("Toggle task {}", index);
                 self.state.toggle(index);
                 true
             }
             Msg::Remove(index) => {
+                log!("Remove task {}", index);
                 self.state.remove(index);
                 true
             }

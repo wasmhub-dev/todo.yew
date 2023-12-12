@@ -6,6 +6,7 @@ use todo::TodoApp;
 
 #[function_component]
 fn App() -> Html {
+    log!("Welcome to wasm(yew) world");
     html! {
         <div class="container">
             <TodoApp />
