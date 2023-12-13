@@ -1,8 +1,8 @@
 mod todo;
-mod utils;
 mod state;
 use yew::prelude::*;
 use todo::TodoApp;
+use gloo::console::log;
 
 #[function_component]
 fn App() -> Html {

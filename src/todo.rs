@@ -1,9 +1,10 @@
 use gloo::dialogs::alert;
+use gloo::console::log;
 use gloo::storage::{LocalStorage, Storage};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
-use crate::{log, state::State};
+use crate::state::State;
 
 pub enum Msg {
     Add,
@@ -50,7 +51,7 @@ impl Component for TodoApp {
                     let _ = alert("Please enter a task");
                     return false;
                 } else {
-                    log!("Add task \"{}\"", task_name);
+                    log!("Add task \"{}\"", &task_name);
                     self.state.add(task_name);
                     input_box_element.set_value("");
                     self.save();
