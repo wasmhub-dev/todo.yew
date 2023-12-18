@@ -4,7 +4,7 @@ use gloo::storage::{LocalStorage, Storage};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
-use crate::state::State;
+use crate::state::{State, Task};
 
 pub enum Msg {
     Add,
@@ -27,6 +27,23 @@ impl TodoApp {
         let saved_json: String = LocalStorage::get("todo").unwrap_or_default();
         let state = serde_json::from_str(&saved_json).unwrap_or_else(|_| State::new());
         state
+    }
+
+    fn create_task_html(&self, ctx: &Context<Self>, index: usize, task: &Task) -> Html {
+        let classes = if task.completed {
+            classes!("checked")
+        } else {
+            classes!("")
+        };
+
+        html! {
+            <li class={classes} onclick={ ctx.link().callback(move |_| Msg::Complete(index))}>
+                { format!("{}", task.name) }
+                <span onclick={ ctx.link().callback(move |event: MouseEvent| {event.stop_propagation(); Msg::Remove(index)})}>
+                    { Html::from_html_unchecked(AttrValue::from("&times;")) }
+                </span>
+            </li>
+        }
     }
 }
 
@@ -86,20 +103,7 @@ impl Component for TodoApp {
                 <ul>
                 {
                     self.state.tasks.iter().enumerate().map(|(index, task)| {
-                        let classes = if task.completed {
-                            classes!("checked")
-                        } else {
-                            classes!("")
-                        };
-
-                        html!{
-                            <li class={classes} onclick={ ctx.link().callback(move |_| Msg::Complete(index))}>
-                                { format!("{}", task.name) }
-                                <span onclick={ ctx.link().callback(move |event: MouseEvent| {event.stop_propagation(); Msg::Remove(index)})}>
-                                    { Html::from_html_unchecked(AttrValue::from("&times;")) }
-                                </span>
-                            </li>
-                        }
+                        self.create_task_html(ctx, index, task)
                     }).collect::<Html>()
                 }
                 </ul>
