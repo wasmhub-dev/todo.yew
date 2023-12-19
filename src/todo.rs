@@ -25,19 +25,13 @@ impl TodoApp {
 
     fn load() -> State {
         let saved_json: String = LocalStorage::get("todo").unwrap_or_default();
-        let state = serde_json::from_str(&saved_json).unwrap_or_else(|_| State::new());
-        state
+        serde_json::from_str(&saved_json)
+            .unwrap_or_else(|_| State::new())
     }
 
     fn create_task_html(&self, ctx: &Context<Self>, index: usize, task: &Task) -> Html {
-        let classes = if task.completed {
-            classes!("checked")
-        } else {
-            classes!("")
-        };
-
         html! {
-            <li class={classes} onclick={ ctx.link().callback(move |_| Msg::Complete(index))}>
+            <li class={classes!(if task.completed { "checked" } else { "" })} onclick={ ctx.link().callback(move |_| Msg::Complete(index))}>
                 { format!("{}", task.name) }
                 <span onclick={ ctx.link().callback(move |event: MouseEvent| {event.stop_propagation(); Msg::Remove(index)})}>
                     { Html::from_html_unchecked(AttrValue::from("&times;")) }
@@ -55,7 +49,7 @@ impl Component for TodoApp {
         let state = Self::load();
         Self {
             input_box: NodeRef::default(),
-            state: state,
+            state,
         }
     }
 
